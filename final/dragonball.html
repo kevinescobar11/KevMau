@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personajes Dragon Ball</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    :root {
+      --primary-coloir: #1F0318;
+      --secondary-color: #E5F2C9;
+      --terceary-color: #1E1A1D;
+    }
+    body {
+      background-color: var(--primary-coloir);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      color: var(--secondary-color);
+    }
+    header {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      background-color: var(--terceary-color);
+    }
+    .search {
+      background-color: aqua;
+      border: 5px solid var(--secondary-color);
+      border-radius: 50px;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      font-size: 15px;
+      padding: 10px 16px;
+      color: var(--primary-coloir);
+      width: 300px;
+    }
+    .search::placeholder {
+      color: var(--terceary-color);
+    }
+    .search:focus {
+      outline: none;
+      background-color: var(--secondary-color);
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+      gap: 15px;
+    }
+    .character {
+      width: 300px;
+      background-color: var(--terceary-color);
+      box-shadow: 0 5px 5px black;
+      border-radius: 20px;
+      overflow: hidden;
+      text-align: center;
+    }
+    .character img {
+      width: 100%;
+    }
+    .character-info {
+      padding: 10px 15px;
+    }
+    .character-info h3 {
+      margin: 10px 0 5px;
+    }
+    .character-info p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <input type="text" id="search" class="search" placeholder="Busca un personaje" />
+  </header>
+
+  <main id="main"></main>
+
+  <script>
+    const characters = [
+      { name: "Freezer", image: "alien.jpg", race: "Alienígena", origin: "Desconocido", status: "¿Vivo?" },
+      { name: "Goku", image: "goku.jpg", race: "Saiyan", origin: "Planeta Vegeta", status: "Vivo" },
+      { name: "Vegeta", image: "vegeta.jpg", race: "Humano", origin: "Tierra", status: "Viva" },
+      { name: "Crilin", image: "pelon.jpg", race: "Humano", origin: "Tierra", status: "Vivo" },
+      { name: "Picoro", image: "picoro.jpg", race: "Namekuseijin", origin: "Namek", status: "Vivo" }
+    ];
+
+    const main = document.getElementById("main");
+    const search = document.getElementById("search");
+
+    function showCharacters(list) {
+      main.innerHTML = "";
+      if (list.length === 0) {
+        main.innerHTML = "<p>No se encontraron personajes</p>";
+        return;
+      }
+      list.forEach((char) => {
+        const div = document.createElement("div");
+        div.classList.add("character");
+        div.innerHTML = `
+          <img src="${char.image}" alt="${char.name}" />
+          <div class="character-info">
+            <h3>${char.name}</h3>
+            <p><strong>Raza:</strong> ${char.race}</p>
+            <p><strong>Origen:</strong> ${char.origin}</p>
+            <p><strong>Estado:</strong> ${char.status}</p>
+          </div>
+        `;
+        main.appendChild(div);
+      });
+    }
+
+    search.addEventListener("input", () => {
+      const term = search.value.toLowerCase();
+      const filtered = characters.filter(c =>
+        c.name.toLowerCase().includes(term)
+      );
+      showCharacters(filtered);
+    });
+
+    showCharacters(characters);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personajes</title>
+</head>
+<body>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1f1f1f;      
+      --secondary-color: #e5e5e5;     
+      --terceary-color: #46ffb7;      
+    }
+
+    body {
+      background-color: var(--primary-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+    }
+
+    header {
+      padding: 16px;
+      display: flex;
+      justify-content: flex-end;
+      background-color: var(--secondary-color);
+    }
+
+    .search {
+      background-color: white;
+      border: 5px solid var(--terceary-color);
+      border-radius: 50px;
+      font-size: 15px;
+      padding: 10px 16px;
+      color: var(--primary-color);
+    }
+
+    .search::placeholder {
+      color: var(--terceary-color);
+    }
+
+    .search:focus {
+      outline: none;
+      background-color: var(--primary-color);
+    }
+
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .movie {
+      width: 300px;
+      margin: 15px;
+      background-color: var(--secondary-color);
+      box-shadow: 0 5px 5px black;
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+
+    .movie img {
+      width: 100%;
+    }
+
+    .movie-info {
+      color: var(--terceary-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 15px 15px;
+      letter-spacing: 2px;
+    }
+
+    .movie-info h3 {
+      margin-top: 0;
+    }
+
+    .movie-info span {
+      background-color: var(--primary-color);
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .movie-info span.blue {
+      color: #46ffb7; 
+    }
+
+    .movie-info span.orange {
+      color: #ffc107; 
+    }
+
+    .movie-info span.red {
+      color: #e53935;
+    }
+
+    .overview {
+      background-color: #fff;
+      padding: 32px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      max-height: 100%;
+      transform: translateY(101%);
+      overflow-y: auto;
+      transition: transform 0.3s ease-in;
+    }
+
+    .movie:hover .overview {
+      transform: translateY(0);
+    }
+  </style>
+
+  <header>
+    <img src="navegador.jpg" alt="logo" style="width: 100px;" />
+    <form id="form">
+      <input type="text" id="search" class="search" placeholder="Busca un personaje" />
+    </form>
+  </header>
+
+  <main id="main"></main>
+
+  <script>
+    const RICK_MORTY_API = 'https://rickandmortyapi.com/api/character';
+    const HARRY_POTTER_API = 'https://hp-api.onrender.com/api/characters';
+
+    const main = document.getElementById('main');
+    const form = document.getElementById('form');
+    const search = document.getElementById('search');
+
+    getCharacters();
+
+    async function getCharacters() {
+      const [rickRes, hpRes] = await Promise.all([
+        fetch(RICK_MORTY_API),
+        fetch(HARRY_POTTER_API)
+      ]);
+      const rickData = await rickRes.json();
+      const hpData = await hpRes.json();
+
+      const rickCharacters = rickData.results.map(char => ({
+        name: char.name,
+        image: char.image,
+        actor: 'Desconocido',
+        gender: char.gender,
+        house: char.species,
+        status: char.status
+      }));
+
+      const hpCharacters = hpData.map(char => ({
+        name: char.name,
+        image: char.image || 'https://via.placeholder.com/300x450?text=Sin+Imagen',
+        actor: char.actor || 'Desconocido',
+        gender: char.gender,
+        house: char.house || 'Sin casa',
+        status: char.alive ? 'Alive' : 'Dead'
+      }));
+
+      const allCharacters = [...rickCharacters, ...hpCharacters];
+      showCharacters(allCharacters);
+    }
+
+    function showCharacters(characters) {
+      main.innerHTML = '';
+      characters.forEach(character => {
+        const { name, image, actor, gender, house, status } = character;
+
+        const element = document.createElement('div');
+        element.classList.add('movie');
+        element.innerHTML = `
+          <img src="${image}" alt="${name}">
+          <div class="movie-info">
+            <h3>${name}</h3>
+            <span class="${getClassByStatus(status)}">${status}</span>
+          </div>
+          <div class="overview">
+            <h3>Detalles</h3>
+            <p><strong>Casa:</strong> ${house}</p>
+            <p><strong>Actor:</strong> ${actor}</p>
+            <p><strong>Género:</strong> ${gender}</p>
+          </div>
+        `;
+        main.appendChild(element);
+      });
+    }
+
+    function getClassByStatus(status) {
+      const s = status.toLowerCase();
+      if (s === 'alive') return 'blue';
+      if (s === 'unknown') return 'orange';
+      return 'red';
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const searchTerm = search.value.toLowerCase();
+      if (searchTerm && searchTerm !== '') {
+        filterCharacters(searchTerm);
+        search.value = '';
+      } else {
+        window.location.reload();
+      }
+    });
+
+    async function filterCharacters(searchTerm) {
+      const [rickRes, hpRes] = await Promise.all([
+        fetch(RICK_MORTY_API),
+        fetch(HARRY_POTTER_API)
+      ]);
+      const rickData = await rickRes.json();
+      const hpData = await hpRes.json();
+
+      const rickCharacters = rickData.results
+        .filter(c => c.name.toLowerCase().includes(searchTerm))
+        .map(char => ({
+          name: char.name,
+          image: char.image,
+          actor: 'Desconocido',
+          gender: char.gender,
+          house: char.species,
+          status: char.status
+        }));
+
+      const hpCharacters = hpData
+        .filter(c => c.name.toLowerCase().includes(searchTerm))
+        .map(char => ({
+          name: char.name,
+          image: char.image || 'https://via.placeholder.com/300x450?text=Sin+Imagen',
+          actor: char.actor || 'Desconocido',
+          gender: char.gender,
+          house: char.house || 'Sin casa',
+          status: char.alive ? 'Alive' : 'Dead'
+        }));
+
+      const filtered = [...rickCharacters, ...hpCharacters];
+      showCharacters(filtered);
+    }
+  </script>
+</body>
+</html>

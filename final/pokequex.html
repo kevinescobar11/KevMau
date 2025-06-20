@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+  <style>
+    body {
+      background-image: url(logo.jpg);
+      background-size: 100%;
+      background-repeat: no-repeat;
+    }
+
+    button {
+      width: 50px;
+      height: 50px;
+      background-image: url(icono.jpg);
+      background-size: 100%;
+      background-repeat: no-repeat;
+      background-color: #ffc4d6;
+      border-color: transparent;
+      border-radius: 50px;
+      position: absolute;
+      top: 400px;
+      left: 300px;
+    }
+
+    button:hover {
+      background-color: #fb6f92;
+    }
+
+    .pokeImg {
+      position: absolute;
+      z-index: 1;
+      width: 250px;
+      height: 250px;
+      left: 70px;
+      top: 15%;
+    }
+
+    .placeholder {
+      width: 200px;
+      height: 50px;
+      position: absolute;
+      border-radius: 10px;
+      background-color: rgba(238, 224, 224, 0.63);
+      text-align: center;
+      text-shadow: 2px;
+      font-size: 25px;
+      top: 400px;
+      left: 60px;
+    }
+
+    .pokeimg1 {
+  position: absolute;
+  color: #ff6700;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 25px;
+}
+
+  </style>
+</head>
+<body>
+  <input type="text" placeholder="Pokemon" id="pokeName" class="placeholder" />
+  <img src="pokebola.png" alt="Pokeball" id="pokeImg" class="pokeImg" />
+
+  <div id="pokename" class="pokeimg1" style="top: 50px; left: 460px;">Nombre del Pokemon:</div>
+  <div id="pokeHe" class="pokeimg1" style="top: 100px; left: 460px;">Altura del Pokemon:</div>
+  <div id="pokeWe" class="pokeimg1" style="top: 150px; left: 460px;">Peso del Pokemon:</div>
+  <div id="poketype" class="pokeimg1" style="top: 200px; left: 460px;">Tipo del Pokemon:</div>
+  <div id="pokeitem" class="pokeimg1" style="top: 250px; left: 460px;">Item del Pokemon:</div>
+  <div id="pokemove1" class="pokeimg1" style="top: 300px; left: 460px;">Movimiento del Pokemon:</div>
+  <div id="pokemove2" class="pokeimg1" style="top: 350px; left: 460px;">Movimiento del Pokemon:</div>
+  <div id="pokemove3" class="pokeimg1" style="top: 400px; left: 460px;">Movimiento del Pokemon:</div>
+  <div id="pokemove4" class="pokeimg1" style="top: 450px; left: 460px;">Movimiento del Pokemon:</div>
+  <div id="pokeid" class="pokeimg1" style="top: 500px; left: 460px;">Id del Pokemon:</div>
+  <div id="pokeorder" class="pokeimg1" style="top: 550px; left: 460px;">Orden del Pokemon:</div>
+
+  <button onclick="fetchPokemon()" class="button"></button>
+
+  <div class="grafica">
+    <canvas id="miCanvas"></canvas>
+  </div>
+
+  <script>
+    const fetchPokemon = () => {
+      const pokeNameInput = document.getElementById("pokeName");
+      let pokeName = pokeNameInput.value.toLowerCase();
+      const url = `https://pokeapi.co/api/v2/pokemon/${pokeName}`;
+
+      fetch(url)
+        .then((res) => {
+          if (res.status !== 200) {
+            console.log(res);
+            alert("Pokémon no encontrado");
+            return null;
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data) {
+            document.getElementById("pokeImg").src = data.sprites.front_default;
+            document.getElementById("pokename").innerHTML = `Nombre del Pokemon: ${data.name}`;
+            document.getElementById("pokeHe").innerHTML = `Altura del Pokemon: ${data.height}`;
+            document.getElementById("pokeWe").innerHTML = `Peso del Pokemon: ${data.weight}`;
+            document.getElementById("pokeorder").innerHTML = `Orden: #${data.order}`;
+            document.getElementById("pokeid").innerHTML = `ID: #${data.id}`;
+            document.getElementById("pokeitem").innerHTML = `Habilidad: ${data.abilities[0].ability.name}`;
+            document.getElementById("poketype").innerHTML = `Tipo: ${data.types[0].type.name}`;
+            document.getElementById("pokemove1").innerHTML = `Movimiento 1: ${data.moves[0]?.move.name || "-"}`;
+            document.getElementById("pokemove2").innerHTML = `Movimiento 2: ${data.moves[1]?.move.name || "-"}`;
+            document.getElementById("pokemove3").innerHTML = `Movimiento 3: ${data.moves[2]?.move.name || "-"}`;
+            document.getElementById("pokemove4").innerHTML = `Movimiento 4: ${data.moves[3]?.move.name || "-"}`;
+
+            
+            const miCanvas = document.getElementById("miCanvas").getContext("2d");
+            if (window.miCanva) {
+              window.miCanva.destroy();
+            }
+
+            window.miCanva = new Chart(miCanvas, {
+              type: "bar",
+              data: {
+                labels: ["HP", "Ataque", "Defensa", "Esp. At", "Esp. Def", "Velocidad"],
+                datasets: [{
+                  label: `${data.name}`,
+                  data: [
+                    data.stats[0].base_stat,
+                    data.stats[1].base_stat,
+                    data.stats[2].base_stat,
+                    data.stats[3].base_stat,
+                    data.stats[4].base_stat,
+                    data.stats[5].base_stat,
+                  ],
+                  backgroundColor: [
+                    'rgba(255,99,132,0.5)',
+                    'rgba(54,162,235,0.5)',
+                    'rgba(255,206,86,0.5)',
+                    'rgba(75,192,192,0.5)',
+                    'rgba(153,102,255,0.5)',
+                    'rgba(255,159,64,0.5)'
+                  ],
+                  borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54,162,235,1)',
+                    'rgba(255,206,86,1)',
+                    'rgba(75,192,192,1)',
+                    'rgba(153,102,255,1)',
+                    'rgba(255,159,64,1)'
+                  ],
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                scales: {
+                  x: {
+                    ticks: {
+                      color: 'purple',
+                      font: { size: 15 }
+                    }
+                  }
+                }
+              }
+            });
+          }
+        });
+    };
+  </script>
+</body>
+</html>
